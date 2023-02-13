@@ -3,13 +3,11 @@
 use strict;
 use warnings;
 use Data::Dumper;
-use Storable;
 
 our $VERSION = 0.01;
 
-our $DIR = '/bwdata1/jfryan/72-MNEMIOPSIS/09-SEBE_RERUN/UMI_tables/Mnemiopsis';
-our $UMI_STOR = 'mnemiopsis_single_cell_umi_hash.storable';
-#our @INNEXINS = qw(ML25993a ML07312a ML223536a ML25998a ML218922a ML25999a ML32831a ML47742a ML078817a ML129317a ML25997a ML036514a);
+#our $DIR = '/bwdata1/jfryan/72-MNEMIOPSIS/09-SEBE_RERUN/UMI_tables/Mnemiopsis';
+our $DIR =  'print_coexp_all.dir';
 our @INNEXINS = qw(ML25993a ML25997a ML25998a ML25999a ML32831a ML47742a ML218922a ML129317a ML07312a ML223536a ML036514a ML078817a ML13055a ML12047a ML215412a);
 our %NAMES = ('ML25993a'  => 'INXA',
               'ML25997a'  => 'INXB',
@@ -22,29 +20,16 @@ our %NAMES = ('ML25993a'  => 'INXA',
               'ML07312a'  => 'INXL',
               'ML223536a' => 'INXM',
               'ML036514a' => 'INXO',
-              'ML078817a' => 'INXP',
-              'ML13055a' => 'MleiOpsin1',
-              'ML12047a' => 'MleiOpsin2',
-              'ML215412a' => 'MleiOpsin3' );
+              'ML078817a' => 'INXP' );
 
 MAIN: {
-#    my $ra_files = get_files($DIR);
-#    my $rh_data  = get_data($DIR,$ra_files);
-#    Storable::store $rh_data, $UMI_STOR;
-    my $rh_data = Storable::retrieve($UMI_STOR);
-my $count = scalar(@{$rh_data->{'ML25999a'}});
+    my $ra_files = get_files($DIR);
+    my $rh_data  = get_data($DIR,$ra_files);
     my $rh_counts = get_counts(\@INNEXINS,$rh_data);
-#print "ML25997a: $rh_counts->{'ML25997a'}\n";
-#print "ML25999a: $rh_counts->{'ML25999a'}\n";
-#print "TOTAL: $count\n";
-#exit;
     my $head = '#,';
     foreach my $id (@INNEXINS) {
         $head .= "$NAMES{$id}($rh_counts->{$id}),";
     }
-#    foreach my $id (reverse(@INNEXINS)) {
-#        $head .= "$id($rh_counts->{$id}),";
-#    }
     chop $head;
     print "$head\n";
     my %seen = ();
@@ -134,7 +119,7 @@ sub get_data {
 
 sub get_files {
     my $dir = shift;
-    opendir DIR, $dir or die "cannot opendir $dir";
+    opendir DIR, $dir or die "cannot opendir $dir:$!";
     my @files = grep {/.txt$/} readdir(DIR);
     return \@files;
 }
